@@ -14,3 +14,7 @@ build
 /gradlew
 /gradlew.bat
 .gitmodules
+
+
+# compiled class files.
+*.class
