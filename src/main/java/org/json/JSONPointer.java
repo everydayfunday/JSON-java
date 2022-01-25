@@ -127,7 +127,7 @@ public class JSONPointer {
     }
 
     // Segments for the JSONPointer string
-    private final List<String> refTokens;
+     final List<String> refTokens;
 
     /**
      * Pre-parses and initializes a new {@code JSONPointer} instance. If you want to

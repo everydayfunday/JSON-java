@@ -22,20 +22,13 @@ public class M2Test {
                         "  </address>\n" +
                         "</contact>";
 
-        // Read XML into String
-//        File input = new File("filepath");
-//        FileReader reader = new FileReader(input);
-//        JSONObject replacement = XML.toJSONObject("<street>Ave of the Arts</street>\n");
-//        System.out.println("Given replacement: " + replacement);
-//        JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/street/"), replacement);
-//        System.out.println(jobj.toString(4));
-
         // Convert XML to JSON Object - using XML class from json-java.jar
         try {
             JSONObject replacement = XML.toJSONObject("<street>Ave of the Arts</street>\n");
             System.out.println("Given replacement: " + replacement);
-            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/street/"), replacement);
-            System.out.println(jobj.toString(4));
+            JSONObject jobj1 = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/street/"));
+            JSONObject jobj2 = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/street/"), replacement);
+            System.out.println(jobj2.toString(4));
         } catch (JSONException e) {
             System.out.println(e);
         }
