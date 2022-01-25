@@ -29,6 +29,7 @@ import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -942,8 +943,8 @@ public class XML {
     private static boolean parse2(XMLTokener x, JSONObject context, JSONPointer jsonPointer)
             throws JSONException {
 
-        List<String> pathTokens = jsonPointer.refTokens;
-        pathTokens.remove(pathTokens.size() - 1);
+        List<String> pathTokens = new ArrayList<String>();
+        pathTokens = jsonPointer.refTokens;
         XMLParserConfiguration config = new XMLParserConfiguration();
         String name = null;
 
@@ -972,8 +973,6 @@ public class XML {
          may be a string wrapped in single quotes or double quotes, or it may be a
          name.
          */
-
-        String test = pathTokens.get(pathTokens.size() - 1);
 
         // Detecting: "<!"
         if (token == BANG) { // BANG : if char is !
@@ -1053,7 +1052,7 @@ public class XML {
             jsonObject = new JSONObject();
             boolean nilAttributeFound = false;
             xmlXsiTypeConverter = null;
-            for (;;) {
+            for (; ; ) {
                 if (token == null) {
                     token = x.nextToken();
                 }
@@ -1072,7 +1071,7 @@ public class XML {
                                 && NULL_ATTR.equals(string)
                                 && Boolean.parseBoolean((String) token)) {
                             nilAttributeFound = true;
-                        } else if(config.getXsiTypeMap() != null && !config.getXsiTypeMap().isEmpty()
+                        } else if (config.getXsiTypeMap() != null && !config.getXsiTypeMap().isEmpty()
                                 && TYPE_ATTR.equals(string)) {
                             xmlXsiTypeConverter = config.getXsiTypeMap().get(token);
                         } else if (!nilAttributeFound) {
@@ -1119,62 +1118,63 @@ public class XML {
                 // Inside: if token is ">" : bracket closed, get value pairs
                 else if (token == GT) {  //GT: ">"
                     // Content, between <...> and </...>
-                    for (;;) {
-                        token = x.nextContent();
-                        if (token == null) {
-                            if (tagName != null) {
-                                throw x.syntaxError("Unclosed tag " + tagName);
-                            }
-                            return false;
-                        }
-
-                        // if key values exist,
-                        else if (token instanceof String) {
-                            string = (String) token;
-                            if (string.length() > 0) {
-                                if(xmlXsiTypeConverter != null) {
-                                    jsonObject.accumulate(config.getcDataTagName(),
-                                            stringToValue(string, xmlXsiTypeConverter));
-                                } else {
-                                    jsonObject.accumulate(config.getcDataTagName(),
-                                            config.isKeepStrings() ? string : stringToValue(string));
+                    for (; ; ) {
+//                        if (tagName.toString() == pathTokens.get(pathTokens.size() - 1)) {
+                            token = x.nextContent();
+                            if (token == null) {
+                                if (tagName != null) {
+                                    throw x.syntaxError("Unclosed tag " + tagName);
                                 }
-                            }
-                            // if > is the next token, parse into nested element via recursion
-                        } else if (token == LT) {
-                            // Parse into nested element
-                            if (parse(x, jsonObject, tagName, config)) {
-                                if (config.getForceList().contains(tagName)) {
-                                    // Force the value to be an array
-                                    if (jsonObject.length() == 0) {
-                                        context.put(tagName, new JSONArray());
-                                    } else if (jsonObject.length() == 1
-                                            && jsonObject.opt(config.getcDataTagName()) != null) {
-                                        context.append(tagName, jsonObject.opt(config.getcDataTagName()));
-                                    } else {
-                                        context.append(tagName, jsonObject);
-                                    }
-                                } else {
-                                    if (jsonObject.length() == 0) {
-                                        context.accumulate(tagName, "");
-                                    } else if (jsonObject.length() == 1
-                                            && jsonObject.opt(config.getcDataTagName()) != null) {
-                                        context.accumulate(tagName, jsonObject.opt(config.getcDataTagName()));
-                                    } else {
-                                        context.accumulate(tagName, jsonObject);
-                                    }
-                                }
-
                                 return false;
                             }
-                        }
+
+                            // if key values exist,
+                            else if (token instanceof String) {
+                                string = (String) token;
+                                if (string.length() > 0) {
+                                    if (xmlXsiTypeConverter != null) {
+                                        jsonObject.accumulate(config.getcDataTagName(),
+                                                stringToValue(string, xmlXsiTypeConverter));
+                                    } else {
+                                        jsonObject.accumulate(config.getcDataTagName(),
+                                                config.isKeepStrings() ? string : stringToValue(string));
+                                    }
+                                }
+                                // if > is the next token, parse into nested element via recursion
+                            } else if (token == LT) {
+                                // Parse into nested element
+                                if (parse(x, jsonObject, tagName, config)) {
+                                    if (config.getForceList().contains(tagName)) {
+                                        // Force the value to be an array
+                                        if (jsonObject.length() == 0) {
+                                            context.put(tagName, new JSONArray());
+                                        } else if (jsonObject.length() == 1
+                                                && jsonObject.opt(config.getcDataTagName()) != null) {
+                                            context.append(tagName, jsonObject.opt(config.getcDataTagName()));
+                                        } else {
+                                            context.append(tagName, jsonObject);
+                                        }
+                                    } else {
+                                        if (jsonObject.length() == 0) {
+                                            context.accumulate(tagName, "");
+                                        } else if (jsonObject.length() == 1
+                                                && jsonObject.opt(config.getcDataTagName()) != null) {
+                                            context.accumulate(tagName, jsonObject.opt(config.getcDataTagName()));
+                                        } else {
+                                            context.accumulate(tagName, jsonObject);
+                                        }
+                                    }
+
+                                    return false;
+                                }
+                            }else {
+                                System.out.println("AAAA");
+                                throw x.syntaxError("Misshaped tag");
+                            }
                     }
-                } else {
-                    throw x.syntaxError("Misshaped tag");
                 }
             }
         }
-}
     }
 
     // Milestone 2 - parse

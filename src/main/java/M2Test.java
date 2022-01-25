@@ -27,8 +27,8 @@ public class M2Test {
             JSONObject replacement = XML.toJSONObject("<street>Ave of the Arts</street>\n");
             System.out.println("Given replacement: " + replacement);
             JSONObject jobj1 = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/street/"));
-            JSONObject jobj2 = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/street/"), replacement);
-            System.out.println(jobj2.toString(4));
+//            JSONObject jobj2 = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/street/"), replacement);
+            System.out.println(jobj1.toString(4));
         } catch (JSONException e) {
             System.out.println(e);
         }
